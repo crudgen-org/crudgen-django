@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "easy-rest-django"
+version = "0.1.1"
+description = ""
+authors = ["pouria <pooriazmn@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+Django = "<3.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+generate = 'easy_rest_django.console.generate:main'
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
