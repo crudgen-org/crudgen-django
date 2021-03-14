@@ -1,4 +1,4 @@
-from easy_rest.abstracts.models import DBModel
+from crudgen.abstracts.models import DBModel
 
 from .fields import CharField, ForeignKey, AutoIDField, RelatedField, ManyToMany, BooleanField
 from .serializers import ModelSerializer

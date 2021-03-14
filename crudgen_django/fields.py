@@ -1,5 +1,5 @@
-from easy_rest.abstracts.abc import AbstractBaseField
-from easy_rest.abstracts.fields import BaseCharField, BaseForeignKey, BaseRelatedField, BaseManyToMany, BaseBooleanField
+from crudgen.abstracts.abc import AbstractBaseField
+from crudgen.abstracts.fields import BaseCharField, BaseForeignKey, BaseRelatedField, BaseManyToMany, BaseBooleanField
 
 
 class AutoIDField(AbstractBaseField):

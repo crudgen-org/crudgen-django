@@ -1,4 +1,4 @@
-from easy_rest.abstracts.endpoints import SimpleDataAccessEndpoint, NestedManySimpleDataAccessEndpoint, \
+from crudgen.abstracts.endpoints import SimpleDataAccessEndpoint, NestedManySimpleDataAccessEndpoint, \
     BaseAddToManyRelationEndpoint, BaseRemoveFromManyRelationEndpoint, NestedForeignSimpleDataAccessEndpoint
 
 

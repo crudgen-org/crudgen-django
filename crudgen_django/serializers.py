@@ -1,4 +1,4 @@
-from easy_rest.abstracts.serializers import BaseSerializer
+from crudgen.abstracts.serializers import BaseSerializer
 
 from .fields import *
 

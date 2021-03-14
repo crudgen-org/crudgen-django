@@ -2,7 +2,7 @@ import pathlib
 
 from .models import Model
 from .endpoints import ModelViewSetEndpoint
-from easy_rest.abstracts.apps import BaseApp
+from crudgen.abstracts.apps import BaseApp
 
 
 class App(BaseApp):

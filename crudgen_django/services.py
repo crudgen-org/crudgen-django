@@ -1,7 +1,7 @@
 import pathlib
 
 from django.core.management import ManagementUtility
-from easy_rest.abstracts.services import BaseSimpleRestService
+from crudgen.abstracts.services import BaseSimpleRestService
 
 from .apps import App
 
