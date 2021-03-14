@@ -1,5 +1,5 @@
 import argparse
-from easy_rest_django.services import SimpleRestService
+from crudgen_django.services import SimpleRestService
 import json
 
 parser = argparse.ArgumentParser(description="command line interface for easy-rest")

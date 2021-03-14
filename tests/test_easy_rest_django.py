@@ -1,4 +1,4 @@
-from easy_rest_django import __version__
+from crudgen_django import __version__
 
 
 def test_version():

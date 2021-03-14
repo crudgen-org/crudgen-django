@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "easy-rest-django"
+name = "crudgen-django"
 version = "0.1.1"
 description = ""
 authors = ["pouria <pooriazmn@gmail.com>"]
@@ -7,6 +7,7 @@ authors = ["pouria <pooriazmn@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.8"
 Django = "<3.0"
+crudgen = "^0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
