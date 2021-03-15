@@ -4,6 +4,7 @@ from django.core.management import ManagementUtility
 from crudgen.abstracts.services import BaseSimpleRestService
 
 from .apps import App
+from .hacks import configs
 
 
 class SimpleRestService(BaseSimpleRestService):
@@ -42,14 +43,16 @@ class SimpleRestService(BaseSimpleRestService):
             print("    'rest_framework',\n]", end='\n\n', file=f)
 
             print(f'ALLOWED_HOSTS = {repr(self.deploy_strategy["hostname"])}', file=f)
+            print('STATIC_ROOT = os.path.join(BASE_DIR, "static")', file=f)
 
         with self.settings_init_path.open('w') as f:
             print('from .settings import *', end='\n\n\n', file=f)
 
     def create_base(self, dist_path):
         self.dist_path = pathlib.Path(dist_path).resolve()
-        self.project_base_dir = self.dist_path
+        self.project_base_dir = self.dist_path / self.name
         self.dist_path.mkdir(parents=True, exist_ok=True)
+        self.project_base_dir.mkdir(parents=True, exist_ok=True)
 
     def generate_apps(self):
         self.base_urls_path = self.project_base_dir / self.name / 'urls.py'
@@ -60,10 +63,22 @@ class SimpleRestService(BaseSimpleRestService):
                 print(f"    path('{app.namespace}', include('{app.name}.urls')),", end='\n', file=f)
             print(']', end='\n\n', file=f)
 
-    def generate_provision(self):
+    def generate_requirements(self):
+        requirementsfile = self.dist_path / 'requirements.txt'
+        with requirementsfile.open('w') as f:
+            print("Django<3.0",
+                  "djangorestframework==3.12.1",
+                  "drf-extensions==0.6.0",
+                  "pytz==2020.1",
+                  "sqlparse==0.4.1",
+                  "gunicorn==20.0.4",
+                  sep='\n', file=f
+                  )
+
+    def generate_vagrantfile(self):
         vagrantfile = self.project_base_dir / 'Vagrantfile'
         bootstrapfile = self.project_base_dir / 'bootstrap.sh'
-        requirementsfile = self.project_base_dir / 'requirements.txt'
+
         with vagrantfile.open('w') as f:
             print("# -*- mode: ruby -*-",
                   "# vi: set ft=ruby :",
@@ -88,19 +103,42 @@ class SimpleRestService(BaseSimpleRestService):
                   f"ufw allow {self.deploy_strategy['port']}",
                   f"nohup python manage.py runserver 0.0.0.0:{self.deploy_strategy['port']} &",
                   sep='\n', file=f)
-        with requirementsfile.open('w') as f:
-            print("Django<3.0",
-                  "djangorestframework==3.12.1",
-                  "drf-extensions==0.6.0",
-                  "pytz==2020.1",
-                  "sqlparse==0.4.1",
-                  sep='\n', file=f
-                  )
+
+    def generate_deploy_configs(self):
+        nginx_default_path = self.dist_path / "nginx.default"
+        with nginx_default_path.open("w") as nginxcf:
+            hostname = self.deploy_strategy["hostname"]
+            if hostname == "*":
+                hostname = "_"
+            config = configs.NGINX_CONF_TEMPLATE.\
+                replace("{{server_name}}", hostname).\
+                replace("{{project_name}}", self.name)
+            nginxcf.write(config)
+
+        start_server_path = self.dist_path / "start-server.sh"
+        with start_server_path.open("w") as startsh:
+            cmd = configs.START_SERVER_CMD_TEMPLATE.\
+                replace("{{project_name}}", self.name)
+            startsh.write(cmd)
+
+    def generate_dockerfile(self):
+        self.generate_deploy_configs()
+
+        dockerfile_path = self.dist_path / "Dockerfile"
+        with dockerfile_path.open("w") as dockerfile:
+            content = configs.DockerFile_TEMPLATE.\
+                replace("{{project_name}}", self.name)
+            dockerfile.write(content)
+
+    def generate_provision(self):
+        self.generate_requirements()
+        self.generate_deploy_configs()
+        self.generate_dockerfile()
 
     def transform(self, dist_path, **kwargs):
         self.create_base(dist_path=dist_path)
-        if not (self.dist_path / 'manage.py').exists():
-            utility = ManagementUtility(['django-admin', 'startproject', self.name, str(self.dist_path)])
+        if not (self.project_base_dir / 'manage.py').exists():
+            utility = ManagementUtility(['django-admin', 'startproject', self.name, str(self.project_base_dir)])
             utility.execute()
 
         self.init_settings()
