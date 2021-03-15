@@ -1,4 +1,6 @@
+import os
 import pathlib
+import subprocess
 
 from django.core.management import ManagementUtility
 from crudgen.abstracts.services import BaseSimpleRestService
@@ -149,3 +151,12 @@ class SimpleRestService(BaseSimpleRestService):
         self.generate_apps()
 
         self.generate_provision()
+
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', f'{self.name}.settings')
+        for app in self.apps:
+            manage = self.project_base_dir / 'manage.py'
+            pipe = subprocess.Popen(['python', manage, 'makemigrations', app.name])
+            stderr, stdout = pipe.communicate()
+            if pipe.returncode != 0:
+                print(stdout, stderr, sep='\n-------------------------\n')
+                raise Exception("could not create migration files")
